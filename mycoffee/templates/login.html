@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block header %}
+	Login..
+{% endblock header %}
+{% block content %}
+<div class="postform">
+<form action="{% url 'mycoffee:login'  %}" method="POST" enctype="multipart/form-data">
+	{% csrf_token %}
+	{{form|crispy}}
+	<input type="submit" value="Login">
+
+</form>
+</div>	
+{% endblock content %}
+
