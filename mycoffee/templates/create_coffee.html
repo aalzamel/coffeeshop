@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block header %}
+	Login..
+{% endblock header %}
+{% block content %}
+<div class="postform">
+<form action="{% url 'mycoffee:CreateCoffee'  %}" method="POST" enctype="multipart/form-data" onchange="price()">
+	{% csrf_token %}
+	{{form|crispy}}
+
+	<h4>Price: <span id="money">000</span></h4>
+
+	<input type="submit" value="Login">
+
+</form>
+</div>	
+
+<script type="text/javascript">
+	function price()
+	{
+		var shots = document.getElementById("id_espresso_shots").value;
+		
+		var bean = document.getElementById("id_bean");
+		var bean_id = bean[bean.selectedIndex].value;
+
+		
+		var roast = document.getElementById("id_roast");
+		var roast_id = bean[roast.selectedIndex].value;
+
+		selected_powder = []
+		powder = document.getElementById("id_powder");
+		for(var i = 0; i < powder.length; i++)
+		{
+			if(powder.options[i].selected)
+			{
+				selected_powder.push(powder.options[i].value);
+			}
+		}		
+
+		selected_syrup = []
+		syrup = document.getElementById("id_syrup")
+		for(var i = 0; i < syrup.length; i++)
+		{
+			if(syrup.options[i].selected)
+			{
+				selected_syrup.push(syrup.options[i].value);
+			}
+		}
+
+		milk = document.getElementById("id_steamed_milk").checked;
+
+		$.ajax({
+			type:'GET',
+			url: '{% url "mycoffee:get-price" %}',
+
+			data: {
+				bean: bean_id,
+				roast: roast_id,
+				shots: shots,
+				milk: milk,
+				powder: JSON.stringify(selected_powder),
+				syrup: JSON.stringify(selected_syrup),
+			},
+
+			error: function(){
+				console.log("There was an error");
+			},
+
+			success: function(data){
+				document.getElementById('money').innerHTML=data;
+				
+			}
+
+
+		});
+	}
+
+
+
+</script>
+
+
+{% endblock content %}
+

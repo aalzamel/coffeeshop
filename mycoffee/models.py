@@ -8,28 +8,28 @@ class Bean(models.Model):
 	price = models.DecimalField(max_digits=6, decimal_places=3)
 
 	def __str__(self):
-		return self
+		return self.name
 
 class Roast(models.Model):
 	name = models.CharField(max_length=120, blank=False, unique=True)
 	price = models.DecimalField(max_digits=6, decimal_places=3)
 
 	def __str__(self):
-		return self
+		return self.name
 
-class Syrups(models.Model):
+class Syrup(models.Model):
 	name = models.CharField(max_length=120, blank=False, unique=True)
 	price = models.DecimalField(max_digits=6, decimal_places=3)
 
 	def __str__(self):
-		return self
+		return self.name
 
-class Powders(models.Model):
+class Powder(models.Model):
 	name = models.CharField(max_length=120, blank=False, unique=True)
 	price = models.DecimalField(max_digits=6, decimal_places=3)
 
 	def __str__(self):
-		return self
+		return self.name
 
 
 class Coffee(models.Model):
@@ -40,17 +40,18 @@ class Coffee(models.Model):
 
 	bean = models.ForeignKey(Bean, on_delete=models.SET_NULL, null=True)
 	roast = models.ForeignKey(Roast, on_delete=models.SET_NULL, null=True)
-	syrups = models.ManyToManyField(Syrups, blank=True)
-	powders = models.ManyToManyField(Powders, blank=True)
+	syrup = models.ManyToManyField(Syrup, blank=True)
+	powder = models.ManyToManyField(Powder, blank=True)
 
 	water = models.FloatField()
 	steamed_milk = models.BooleanField(default=False)
-	foam = models.BooleanField()
+	foam = models.BooleanField(default=True)
 	extra_instructions = models.CharField(max_length=160, null=True, blank=True)
 	price = models.DecimalField(max_digits=6, decimal_places=3, null=True)
+	favorite = models.BooleanField(default=False)
 
 	def __str__(self):
-		return self
+		return self.name
 
 
 
