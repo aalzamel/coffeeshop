@@ -24,13 +24,10 @@ def CoffeePrice(instance):
 	return total_price
 
 def CreateCoffee(request):
-	context = {}
+
 	if not request.user.is_authenticated:
 		return redirect("mycoffee:login")
 
-# if request.user.is_authenticated:
-# 	favorite = Coffee.objects.filter(user=request.user, favorite=True)
-# 	menu = Coffee.objects.filter(user__is_staff=True)
 
 	form = CoffeeForm()
 	if request.method == "POST":
@@ -42,7 +39,19 @@ def CreateCoffee(request):
 			form.save_m2m()
 			coffee.price = CoffeePrice(coffee)
 			coffee.save()
-			return redirect('/')
+			return redirect("/add?item_id=%s&qty=%s" % (coffee.id, 1))
+			# return redirect('mycoffee:CreateCoffee')
+
+	if request.user.is_authenticated:
+		menu = Coffee.objects.filter(user__is_staff=True)
+		favorites = Coffee.objects.filter(user=request.user, favorite=True)
+
+
+	context = {
+		'menu': menu,
+		'favorites': favorites,
+
+	}
 	# context = {
 	# 	'menu': menu,
 	# 	'favorites': favorites,
@@ -54,6 +63,12 @@ def CreateCoffee(request):
 
 
 	return render(request, 'create_coffee.html', context)
+
+
+	# if request.user.is_authenticated:
+# 	favorite = Coffee.objects.filter(user=request.user, favorite=True)
+# 	menu = Coffee.objects.filter(user__is_staff=True)
+
 
 ############# view to get price for axaj
 
@@ -105,7 +120,7 @@ def UserSignUp(request):
 
 			auth = authenticate(username=username, password=password)
 			login(request, auth)
-			return redirect("/")
+			return redirect("mycoffee:CreateCoffee")
 		messages.warning(request, form.errors)
 		return redirect('mycoffee:signup')
 	return render(request, "usersignup.html", context)

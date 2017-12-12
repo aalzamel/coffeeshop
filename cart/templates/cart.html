@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row main-content">
+    {% if cart.cartitem_set.count < 1 %}
+      <h1 class='text-center'>Your cart is empty!<small>Please continue shopping.</small></h1>
+    {% else %}
+    <div class="col-sm-8 col-sm-offset-2">
+        <h1>Your Cart:</h1>
+        <table class="table">
+          {% for item in cart.cartitem_set.all %}
+        
+            <tr id="item-{{item.id}}">
+                <td>{{item.item.name}}</td>
+                <td>
+                  <form action="{% url 'cart:add' %}" method="GET" onchange="recal_item_price({{item.id}})">
+                      <input type="hidden" name="item_id" value="{{item.item.id}}"/>
+                      <input id="{{item.id}}" type="number" class="qty" name="qty" value="{{item.quantity}}"/>
+                      {% comment %}
+                          <input type="submit" class="btn btn-info" value="Update item"/>
+                      {% endcomment %}
+                  </form>
+                </td>
+                <td id="item-line-total-{{item.id}}">{{item.line_item_total}}</td>
+            </tr>
+
+
+          {% endfor %}
+
+          <tr>
+            <td colspan="4" class="text-right">Subtotal: <span id = "subtotal" >{{cart.subtotal}}</span></td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-right">Delivery: <span id = "deliverytotal">{{cart.delivery_total}}</span></td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-right">Total: <span id = "carttotal">{{cart.total}}</span></td>
+          </tr>
+
+        </table>
+
+
+                    <a href="{% url 'cart:checkout' %}" type="submit", class="btn btn-success float-right">
+                    <i class="fa fa-money" aria-hidden="true"></i>
+                    </a>
+
+
+    </div>
+    {% endif %}
+</div>
+
+<script type="text/javascript">
+    function recal_item_price(id)
+    {
+        var qty = document.getElementById(id).value;
+
+        $.ajax({
+            type:'GET',
+            url: '{% url "cart:cart_update" %}',
+            data: {
+                item_id: id,
+                qty: qty,
+            },
+            error: function(){
+                console.log("There was an error");
+            },
+
+            success: function(data){
+                if(data.status==="delete")
+                {
+                    var whatever= 'item-'+data.pre_delete;
+                    var el = document.getElementById(whatever);
+                    el.remove();
+                }
+                else{
+                    var par = "item-line-total-"+data.id;
+                    var test = document.getElementById(par);
+                    console.log(test);
+                    test.innerHTML = data.total;
+                }
+                recal_cart({{cart.id}});
+                
+            },
+        })
+
+    }
+
+
+
+    function recal_cart(id)
+    {
+        var cart_id = {{cart.id}};
+        var subtotal = {{cart.subtotal}};
+        var total = {{cart.total}};
+
+        $.ajax({
+            type:'GET',
+            url: '{% url "cart:subtotal" %}',
+            data: {
+                cart_id: cart_id,
+                subtotal: subtotal,
+                total: total,
+                                
+            },
+            error: function(){
+                console.log("There was an error");
+            },
+
+            success: function(data){
+                var newsub = document.getElementById("subtotal");
+                var newtot = document.getElementById("carttotal");
+                newsub.innerHTML = data.subtotal;
+                newtot.innerHTML = data.total;
+
+
+            },
+        })
+
+    }
+
+
+
+
+</script>
+
+
+{% endblock %}
